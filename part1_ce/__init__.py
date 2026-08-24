@@ -15,7 +15,7 @@ class C(BaseConstants):
         550, 600, 650, 700, 750, 800, 850, 900, 950, 1000, 1050
     ]
     NUM_ROUNDS = len(PAYOFF_LIST)
-    LOTTERY_HIGH = 2000  # くじの当たり額を2000円に変更
+    LOTTERY_HIGH = 2000  # くじの当たり額: 2000円
     LOTTERY_LOW = 0
 
 
@@ -49,10 +49,11 @@ class Decision(Page):
         if player.round_number == 1:
             return True
 
-        # 過去のラウンドで確定額を選んで switching_point が記録されていれば以降のラウンドをスキップ
+        # getattr を使い、未設定(None)の場合でもエラーを起こさずに取得
         for r in range(1, player.round_number):
             prev_player = player.in_round(r)
-            if field_maybe_none(prev_player, 'switching_point') is not None:
+            val = getattr(prev_player, 'switching_point', None)
+            if val is not None:
                 return False
 
         return True
@@ -81,9 +82,9 @@ class Results(Page):
     def vars_for_template(player: Player):
         switching_val = None
 
-        # field_maybe_none を使用し、ずっと「くじ」を選んだ場合（全てNone）でも安全に処理
+        # 全ラウンドを通して最初に設定された switching_point を検索
         for r in range(1, C.NUM_ROUNDS + 1):
-            val = field_maybe_none(player.in_round(r), 'switching_point')
+            val = getattr(player.in_round(r), 'switching_point', None)
             if val is not None:
                 switching_val = val
                 break
