@@ -49,7 +49,7 @@ class Decision(Page):
         if player.round_number == 1:
             return True
 
-        # 過去のラウンドで「確定額（sure_payoff）」を選び、switching_point が入っていれば以降のラウンドを自動スキップ
+        # 過去のラウンドで「確定額（sure_payoff）」を選び、switching_point が入っていればスキップ
         for r in range(1, player.round_number):
             prev_player = player.in_round(r)
             if field_maybe_none(prev_player, 'switching_point') is not None:
@@ -81,6 +81,7 @@ class Results(Page):
     def vars_for_template(player: Player):
         switching_val = None
 
+        # field_maybe_none を使って安全に参照する（全てくじを選んだ場合でもエラーにならない）
         for r in range(1, C.NUM_ROUNDS + 1):
             val = field_maybe_none(player.in_round(r), 'switching_point')
             if val is not None:
@@ -92,5 +93,4 @@ class Results(Page):
         }
 
 
-# ページ順序も Decision に指定
 page_sequence = [Decision, Results]
