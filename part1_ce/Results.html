@@ -1,1 +1,30 @@
+{{ block title }}
+    パート1 結果
+{{ endblock }}
 
+{{ block content }}
+    <div class="alert alert-info">
+        <h5>確定した切り替えポイント</h5>
+        <p>あなたが「現金をもらう」と選択し始めた金額： <strong>{{ switching_val }} 円</strong></p>
+    </div>
+
+    <div class="card mb-3">
+        <div class="card-header">謝礼の抽出結果</div>
+        <div class="card-body">
+            <p>22問のうち、ランダムに <strong>第 {{ selected_round }} 問（現金 {{ selected_sure_amount }} 円 の質問）</strong> が選ばれました。</p>
+            
+            {% if lottery_drawn %}
+                <p>あなたの決定に基づき、<strong>「くじA」</strong> が実行されました。</p>
+                {% if lottery_win %}
+                    <p class="text-success">➔ 抽選の結果、<strong>{{ payoff_amount }} 円</strong> が当選しました！</p>
+                {% else %}
+                    <p class="text-danger">➔ 抽選の結果、<strong>0 円</strong> でした。</p>
+                {% endif %}
+            {% else %}
+                <p>あなたの決定に基づき、確実に <strong>{{ payoff_amount }} 円</strong> を獲得しました。</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <button class="otree-btn-next btn btn-primary">次のパートへ進む</button>
+{{ endblock }}
