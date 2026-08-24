@@ -4,22 +4,44 @@
 
 {{ block content }}
 
-    <div class="card bg-light mb-3">
+    <div class="card bg-light mb-4">
+        <div class="card-header bg-info text-white fw-bold">
+            【実験ルールと報酬の決定方法】
+        </div>
         <div class="card-body">
-            <p class="lead">
-                以下の2つの選択肢（<b>選択肢A</b> または <b>選択肢B</b>）のうち、どちらか好きなほうを選んでください。
+            <p class="mb-2">
+                全 {{ C.NUM_ROUNDS }} 問の質問を通じて、「<b>くじ</b>」と「<b>確実にもらえる金額（確定額）</b>」のどちらかを選択していただきます。
             </p>
-            <ul>
-                <li><b>選択肢A（くじ）:</b> 50%の確率で <b>{{ lottery_high }}円</b>、50%の確率で <b>{{ lottery_low }}円</b> が当たります。</li>
-                <li><b>選択肢B（確定額）:</b> 確実に <b>{{ sure_payoff }}円</b> を受け取ることができます。</li>
+            <ul class="mb-2" style="font-size: 0.95rem;">
+                <li><b>スイッチングルール:</b> ここで「確定額を受け取る」を選択した場合、<b>それ以上の確定額が提示される以降の質問でも、すべて「確定額を受け取る」を選んだものとみなされ、このパートの回答は終了</b>します。</li>
+                <li><b>報酬の決定:</b> 実験終了後、全 {{ C.NUM_ROUNDS }} 問の中から<b>ランダムに1つの質問が決定</b>されます。</li>
+                <li>選ばれた質問においてあなたが「確定額」を選んでいた場合（または上記ルールにより確定額を選んだと判定された場合）はその確定額が支払われます。「くじ」を選んでいた場合は50%の確率で2,000円または0円となります。</li>
             </ul>
         </div>
     </div>
 
-    <div class="mb-3">
+    <div class="card border-primary mb-3">
+        <div class="card-body text-center">
+            <h5 class="card-title mb-3">今回の選択肢</h5>
+            <div class="row align-items-center">
+                <div class="col-md-6 border-end">
+                    <p class="mb-1"><b>選択肢A（くじ）</b></p>
+                    <p class="h5 text-primary">50%で {{ lottery_high }}円 / 50%で {{ lottery_low }}円</p>
+                </div>
+                <div class="col-md-6">
+                    <p class="mb-1"><b>選択肢B（確定額）</b></p>
+                    <p class="h5 text-success">確実に {{ sure_payoff }}円</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="mb-3 text-center">
         {{ formfields }}
     </div>
 
-    {{ next_button }}
+    <div class="text-center">
+        {{ next_button }}
+    </div>
 
 {{ endblock }}
