@@ -96,7 +96,6 @@ class Results(Page):
         selected_sure_amount = C.PAYOFF_LIST[selected_round - 1]
 
         # 3. 選ばれた質問での決定（ストッピングルール適用を考慮）
-        # スイッチングポイントより前のラウンドなら「くじ」、それ以降なら「確定額」
         if first_sure_round is not None and selected_round >= first_sure_round:
             user_choice = 'sure_payoff'
         else:
@@ -120,6 +119,7 @@ class Results(Page):
             'user_choice': user_choice,
             'lottery_drawn': lottery_drawn,
             'payoff': payoff,
+            'payoff_amount': payoff,  # Results.html 側で使用されている変数名にも対応
             'lottery_high': C.LOTTERY_HIGH,
             'lottery_low': C.LOTTERY_LOW,
         }
