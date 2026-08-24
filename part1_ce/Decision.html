@@ -1,29 +1,25 @@
 {{ block title }}
-    質問 ({{ round_num }} / 22)
+    意思決定（第 {{ player.round_number }} ラウンド / 全 {{ C.NUM_ROUNDS }} ラウンド）
 {{ endblock }}
 
 {{ block content }}
-    <div class="card mb-4">
-        <div class="card-body">
-            <h5 class="card-title">以下の2つの選択肢のうち、どちらか好きな一方を選んでください。</h5>
-            <hr>
-            
-            <p><strong>【選択肢 A：くじA】</strong></p>
-            <ul>
-                <li>状態1（確率 1/2）が起きたら： <strong>{{ lottery_high }} 円</strong></li>
-                <li>状態2（確率 1/2）が起きたら： <strong>{{ lottery_low }} 円</strong></li>
-            </ul>
 
-            <p><strong>【選択肢 B：現金】</strong></p>
+    <div class="card bg-light mb-3">
+        <div class="card-body">
+            <p class="lead">
+                以下の2つの選択肢（<b>選択肢A</b> または <b>選択肢B</b>）のうち、どちらか好きなほうを選んでください。
+            </p>
             <ul>
-                <li>確実に <strong>{{ sure_amount }} 円</strong> をもらう</li>
+                <li><b>選択肢A（くじ）:</b> 50%の確率で <b>{{ lottery_high }}円</b>、50%の確率で <b>{{ lottery_low }}円</b> が当たります。</li>
+                <li><b>選択肢B（確定額）:</b> 確実に <b>{{ sure_payoff }}円</b> を受け取ることができます。</li>
             </ul>
         </div>
     </div>
 
     <div class="mb-3">
-        {{ formfield 'choice' label="あなたの選択：" }}
+        {{ formfields }}
     </div>
 
-    <button class="otree-btn-next btn btn-primary">次へ進む</button>
+    {{ next_button }}
+
 {{ endblock }}
