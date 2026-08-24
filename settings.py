@@ -1,3 +1,5 @@
+from os import environ
+
 SESSION_CONFIGS = [
     dict(
         name='part1_test',
@@ -7,4 +9,11 @@ SESSION_CONFIGS = [
     ),
 ]
 
-LANGUAGE_CODE = 'ja'  # <--- dict の外側（一番下など）に移動してください
+SESSION_CONFIG_DEFAULTS = dict(
+    real_world_currency_per_point=1.00,
+    participation_fee=0.00,
+    doc="",
+)
+
+PARTICIPANT_FIELDS = []
+SESSION_FIELDS = []
