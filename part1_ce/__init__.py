@@ -1,3 +1,4 @@
+import random
 from otree.api import *
 
 
@@ -15,7 +16,7 @@ class C(BaseConstants):
         550, 600, 650, 700, 750, 800, 850, 900, 950, 1000, 1050
     ]
     NUM_ROUNDS = len(PAYOFF_LIST)
-    LOTTERY_HIGH = 2000  # くじの当たり額: 2000円
+    LOTTERY_HIGH = 2000  # くじの当たり額: 2,000円
     LOTTERY_LOW = 0
 
 
@@ -49,12 +50,11 @@ class Decision(Page):
         if player.round_number == 1:
             return True
 
-        # 過去のラウンドの「選択肢(choice)」をチェック
-        # DBの数値フィールドではなく文字列フィールドを参照するため100%エラーになりません
+        # 過去のラウンドで確定額を選んでいたら以降をスキップ
         for r in range(1, player.round_number):
             prev_player = player.in_round(r)
             if prev_player.choice == 'sure_payoff':
-                return False  # 過去に確定額を選んでいたら以降のラウンドをスキップ
+                return False
 
         return True
 
@@ -80,17 +80,48 @@ class Results(Page):
 
     @staticmethod
     def vars_for_template(player: Player):
+        # 1. スイッチングポイントの特定
         switching_val = None
+        first_sure_round = None
 
-        # 確定額を選んだ最初のラウンドを探して金額を特定
         for r in range(1, C.NUM_ROUNDS + 1):
             p = player.in_round(r)
             if p.choice == 'sure_payoff':
                 switching_val = C.PAYOFF_LIST[r - 1]
+                first_sure_round = r
                 break
+
+        # 2. 支払対象となる質問（1〜22問）をランダムに決定
+        selected_round = random.randint(1, C.NUM_ROUNDS)
+        selected_sure_amount = C.PAYOFF_LIST[selected_round - 1]
+
+        # 3. 選ばれた質問での決定（ストッピングルール適用を考慮）
+        # スイッチングポイントより前のラウンドなら「くじ」、それ以降なら「確定額」
+        if first_sure_round is not None and selected_round >= first_sure_round:
+            user_choice = 'sure_payoff'
+        else:
+            user_choice = 'lottery'
+
+        # 4. 「くじ」の場合の抽選処理 (50%の確率)
+        lottery_drawn = False
+        payoff = 0
+
+        if user_choice == 'sure_payoff':
+            payoff = selected_sure_amount
+        else:
+            lottery_drawn = True
+            is_win = random.choice([True, False])
+            payoff = C.LOTTERY_HIGH if is_win else C.LOTTERY_LOW
 
         return {
             'switching_val': switching_val,
+            'selected_round': selected_round,
+            'selected_sure_amount': selected_sure_amount,
+            'user_choice': user_choice,
+            'lottery_drawn': lottery_drawn,
+            'payoff': payoff,
+            'lottery_high': C.LOTTERY_HIGH,
+            'lottery_low': C.LOTTERY_LOW,
         }
 
 
