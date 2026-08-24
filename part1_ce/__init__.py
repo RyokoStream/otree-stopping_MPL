@@ -99,6 +99,20 @@ class Results(Page):
         return {
             'switching_val': switching_val,
         }
+class Decision(Page):
+    form_model = 'player'
+    form_fields = ['choice']
 
+    @staticmethod
+    def vars_for_template(player: Player):
+        # HTML側の {{ sure_payoff }} や {{ lottery_high }} 等に値を渡す設定
+        sure_payoff = C.PAYOFF_LIST[player.round_number - 1]
+        return dict(
+            sure_payoff=sure_payoff,
+            lottery_high=C.LOTTERY_HIGH,
+            lottery_low=C.LOTTERY_LOW,
+        )
+
+page_sequence = [Decision]
 
 page_sequence = [MainChoice, Results]
