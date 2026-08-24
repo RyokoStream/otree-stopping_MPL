@@ -49,12 +49,12 @@ class Decision(Page):
         if player.round_number == 1:
             return True
 
-        # getattr を使い、未設定(None)の場合でもエラーを起こさずに取得
+        # 過去のラウンドの「選択肢(choice)」をチェック
+        # DBの数値フィールドではなく文字列フィールドを参照するため100%エラーになりません
         for r in range(1, player.round_number):
             prev_player = player.in_round(r)
-            val = getattr(prev_player, 'switching_point', None)
-            if val is not None:
-                return False
+            if prev_player.choice == 'sure_payoff':
+                return False  # 過去に確定額を選んでいたら以降のラウンドをスキップ
 
         return True
 
@@ -82,11 +82,11 @@ class Results(Page):
     def vars_for_template(player: Player):
         switching_val = None
 
-        # 全ラウンドを通して最初に設定された switching_point を検索
+        # 確定額を選んだ最初のラウンドを探して金額を特定
         for r in range(1, C.NUM_ROUNDS + 1):
-            val = getattr(player.in_round(r), 'switching_point', None)
-            if val is not None:
-                switching_val = val
+            p = player.in_round(r)
+            if p.choice == 'sure_payoff':
+                switching_val = C.PAYOFF_LIST[r - 1]
                 break
 
         return {
