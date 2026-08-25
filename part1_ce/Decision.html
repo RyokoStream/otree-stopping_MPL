@@ -20,7 +20,7 @@
         </div>
     </div>
 
-    <div class="card border-primary mb-3">
+    <div class="card border-primary mb-4">
         <div class="card-body text-center">
             <h5 class="card-title mb-3">今回の選択肢</h5>
             <div class="row align-items-center">
@@ -36,12 +36,37 @@
         </div>
     </div>
 
-    <div class="mb-3 text-center">
-        {{ formfields }}
+    <!-- 選択肢とボタンを中央寄せにするエリア -->
+    <div class="d-flex flex-column align-items-center justify-content-center mb-4">
+        <div class="choice-container mb-3">
+            {{ formfields }}
+        </div>
+        <div>
+            {{ next_button }}
+        </div>
     </div>
 
-    <div class="text-center">
-        {{ next_button }}
-    </div>
+    <style>
+        /* ラジオボタンとラベルを中央寄せにし、押しやすくするスタイル */
+        .choice-container .form-check {
+            font-size: 1.1rem;
+            margin: 10px 0;
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+        }
+        .choice-container .form-check-input {
+            margin-right: 10px;
+            transform: scale(1.2); /* ラジオボタンを少し大きく */
+            cursor: pointer;
+        }
+        .choice-container .form-check-label {
+            cursor: pointer;
+        }
+        /* 不要なラベルヘッダーを非表示 */
+        .choice-container label.col-form-label {
+            display: none;
+        }
+    </style>
 
 {{ endblock }}
