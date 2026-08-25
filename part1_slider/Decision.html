@@ -1,0 +1,87 @@
+{{ block title }}意思決定タスク{{ endblock }}
+
+{{ block content }}
+<div class="card bg-light mb-4">
+    <div class="card-body">
+        <h5>【実験ルール】</h5>
+        <p>
+            下のスライダーを動かして、「**何問目まで『くじ』を選び、何問目から『確定額』を受け取るか**」を決定してください。<br>
+            スライダーを動かすと、下の表の選択結果がリアルタイムで切り替わります。
+        </p>
+    </div>
+</div>
+
+<div class="mb-4 p-4 border rounded bg-white shadow-sm text-center">
+    <label for="slider" class="form-label fw-bold h5 mb-3">
+        切り替えポイントの指定
+    </label>
+    <input type="range" class="form-range" id="slider" min="0" max="22" step="1" value="0" style="height: 1.5rem;">
+    
+    <div class="mt-3 fs-5 fw-bold text-primary" id="status-text">
+        --
+    </div>
+    
+    <input type="hidden" name="switching_point" id="id_switching_point" value="0">
+</div>
+
+<table class="table table-bordered table-hover text-center align-middle">
+    <thead class="table-dark">
+        <tr>
+            <th style="width: 10%;">質問</th>
+            <th style="width: 40%;">選択肢A（くじ）</th>
+            <th style="width: 25%;">選択肢B（確定額）</th>
+            <th style="width: 25%;">あなたの選択</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for payoff in Constants.SURE_PAYOFFS %}
+        <tr id="row-{{ forloop.counter }}">
+            <td>問 {{ forloop.counter }}</td>
+            <td>50%で2,000円 / 50%で0円</td>
+            <td>確実に {{ payoff }}円</td>
+            <td id="choice-{{ forloop.counter }}" class="fw-bold">--</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<div class="text-end mt-4">
+    {{ next_button }}
+</div>
+
+<script>
+    const slider = document.getElementById('slider');
+    const hiddenInput = document.getElementById('id_switching_point');
+    const statusText = document.getElementById('status-text');
+
+    function updateView() {
+        const val = parseInt(slider.value);
+        hiddenInput.value = val;
+
+        if (val === 0) {
+            statusText.innerText = '全22問ですべて「確定額」を受け取ります';
+        } else if (val === 22) {
+            statusText.innerText = '全22問ですべて「くじ」を選びます';
+        } else {
+            statusText.innerText = `問1〜問${val}は「くじ」、問${val + 1}〜問22は「確定額」を選択中`;
+        }
+
+        for (let i = 1; i <= 22; i++) {
+            const cell = document.getElementById(`choice-${i}`);
+            const row = document.getElementById(`row-${i}`);
+            if (i <= val) {
+                cell.innerText = 'くじ';
+                cell.className = 'fw-bold text-danger';
+                row.className = '';
+            } else {
+                cell.innerText = '確定額';
+                cell.className = 'fw-bold text-primary';
+                row.className = 'table-primary';
+            }
+        }
+    }
+
+    slider.addEventListener('input', updateView);
+    updateView();
+</script>
+{{ endblock }}
