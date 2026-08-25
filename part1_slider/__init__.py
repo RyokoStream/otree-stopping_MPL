@@ -1,3 +1,4 @@
+import random
 from otree.api import *
 
 doc = """
@@ -37,6 +38,11 @@ class Player(BasePlayer):
         doc="くじを選んだ最後の問題番号（0〜22）"
     )
 
+    # 謝礼決定用の記録フィールド
+    selected_question = models.IntegerField(doc="抽選で選ばれた問題番号（1〜22）")
+    lottery_outcome = models.IntegerField(doc="くじの結果（2000または0）", initial=0)
+    payoff_choice = models.StringField(doc="選ばれていた選択肢（'くじ' または '確定額'）")
+
     # 全22問の回答結果領域
     q1 = models.BooleanField()
     q2 = models.BooleanField()
@@ -68,11 +74,32 @@ class Decision(Page):
 
     @staticmethod
     def before_next_page(player: Player, timeout_happened):
-        # スライダーの値に基づき q1 〜 q22 を自動決定（False: くじ, True: 確定額）
+        # 1. スライダーの値に基づき q1 〜 q22 を自動決定（False: くじ, True: 確定額）
         sp = player.switching_point
         for i in range(1, Constants.NUM_QUESTIONS + 1):
             is_sure = (i > sp)
             setattr(player, f'q{i}', is_sure)
 
+        # 2. 謝礼金のランダム決定処理
+        q_num = random.randint(1, Constants.NUM_QUESTIONS)
+        player.selected_question = q_num
+        
+        sure_payoff = Constants.SURE_PAYOFFS[q_num - 1]
+        chosen_sure = getattr(player, f'q{q_num}')
+        
+        if chosen_sure:
+            player.payoff_choice = '確定額'
+            player.payoff = sure_payoff
+        else:
+            player.payoff_choice = 'くじ'
+            outcome = random.choice([Constants.LOTTERY_HIGH, Constants.LOTTERY_LOW])
+            player.lottery_outcome = outcome
+            player.payoff = outcome
 
-page_sequence = [Decision]
+
+class Results(Page):
+    pass
+
+
+page_sequence = [Decision, Results]
+
