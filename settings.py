@@ -3,11 +3,18 @@ from os import environ
 SESSION_CONFIGS = [
     dict(
         name='part1_test',
-        display_name="パート1（CE測定）の単体テスト",
+        display_name="パート1（CE測定：従来版）の単体テスト",
         num_demo_participants=1,
         app_sequence=['part1_ce'],
     ),
+    dict(
+        name='part1_slider_test',
+        display_name="パート1（CE測定：スライダー版）の単体テスト",
+        num_demo_participants=1,
+        app_sequence=['part1_slider'],
+    ),
 ]
+
 
 SESSION_CONFIG_DEFAULTS = dict(
     real_world_currency_per_point=1.00,
