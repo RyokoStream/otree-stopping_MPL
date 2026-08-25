@@ -19,6 +19,20 @@
         </div>
     </div>
 
+    <!-- スライダー入力エリア -->
+    <div class="card mb-4 border-primary">
+        <div class="card-body text-center">
+            <label for="switching_point" class="form-label fw-bold fs-5">
+                「くじ」から「確実な金額」へ切り替える場所をスライダーで選択してください
+            </label>
+            <input type="range" class="form-range" id="switching_point" name="switching_point" 
+                   min="0" max="{{ num_questions }}" value="0" oninput="updateTable(this.value)">
+            <div class="mt-2 fs-6 text-muted">
+                選択状況: 第 <span id="switch_val" class="fw-bold text-primary">0</span> 問目まで「くじを選び」、それ以降は「確実な金額を選ぶ」
+            </div>
+        </div>
+    </div>
+
     <!-- 質問テーブル -->
     <table class="table table-bordered text-center align-middle">
         <thead class="table-secondary">
@@ -52,5 +66,26 @@
     <div class="text-end mt-4">
         {{ next_button }}
     </div>
+
+    <!-- スライダーとラジオボタンを連動させるJavaScript -->
+    <script>
+        function updateTable(val) {
+            document.getElementById('switch_val').innerText = val;
+            let numQuestions = {{ num_questions }};
+            for (let i = 1; i <= numQuestions; i++) {
+                if (i <= val) {
+                    document.getElementById('q' + i + '_lottery').checked = true;
+                } else {
+                    document.getElementById('q' + i + '_sure').checked = true;
+                }
+            }
+        }
+
+        // 初期表示時の連動（デフレクト設定）
+        window.onload = function() {
+            let slider = document.getElementById('switching_point');
+            updateTable(slider.value);
+        };
+    </script>
 
 {{ endblock }}
