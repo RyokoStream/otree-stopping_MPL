@@ -5,7 +5,6 @@ doc = """
 スライダー形式の確定等価性（CE）測定タスク
 """
 
-
 class Constants(BaseConstants):
     name_in_url = 'part1_slider'
     players_per_group = None
@@ -14,11 +13,8 @@ class Constants(BaseConstants):
     LOTTERY_HIGH = 2000
     LOTTERY_LOW = 0
 
-    # 確定額のリスト（問1〜22）
-    SURE_PAYOFFS = [
-        0, 50, 100, 150, 200, 250, 300, 350, 400, 450, 500,
-        600, 700, 800, 900, 1000, 1100, 1200, 1400, 1600, 1800, 2000
-    ]
+    # 50円〜1100円の50円刻み（全22問）
+    SURE_PAYOFFS = [50 * i for i in range(1, 23)]
     NUM_QUESTIONS = len(SURE_PAYOFFS)
 
 
@@ -31,7 +27,7 @@ class Group(BaseGroup):
 
 
 class Player(BasePlayer):
-    # スライダーの値を保存（0: 全問確定額 〜 22: 全問くじ）
+    # スライダーの値を保存（0: 全問確実な金額 〜 22: 全問くじ）
     switching_point = models.IntegerField(
         min=0,
         max=Constants.NUM_QUESTIONS,
@@ -41,9 +37,9 @@ class Player(BasePlayer):
     # 謝礼決定用の記録フィールド
     selected_question = models.IntegerField(doc="抽選で選ばれた問題番号（1〜22）")
     lottery_outcome = models.IntegerField(doc="くじの結果（2000または0）", initial=0)
-    payoff_choice = models.StringField(doc="選ばれていた選択肢（'くじ' または '確定額'）")
+    payoff_choice = models.StringField(doc="選ばれていた選択肢（'くじ' または '確実な金額'）")
 
-    # 全22問の回答結果領域
+    # 全22問の回答結果領域（True = くじ, False = 確実な金額）
     q1 = models.BooleanField()
     q2 = models.BooleanField()
     q3 = models.BooleanField()
@@ -68,38 +64,54 @@ class Player(BasePlayer):
     q22 = models.BooleanField()
 
 
+# PAGES
 class Decision(Page):
     form_model = 'player'
-    form_fields = ['switching_point']
+    form_fields = ['switching_point'] + [f'q{i}' for i in range(1, 23)]
 
-    @staticmethod
+    def vars_for_template(player: Player):
+        # 画面描画用の問ごとのデータ作成
+        questions = []
+        for i, sure_payoff in enumerate(Constants.SURE_PAYOFFS, start=1):
+            questions.append({
+                'num': i,
+                'sure_payoff': sure_payoff,
+                'high': Constants.LOTTERY_HIGH,
+                'low': Constants.LOTTERY_LOW,
+            })
+        return {
+            'questions': questions,
+            'num_questions': Constants.NUM_QUESTIONS,
+        }
+
     def before_next_page(player: Player, timeout_happened):
-        # 1. スライダーの値に基づき q1 〜 q22 を自動決定（False: くじ, True: 確定額）
-        sp = player.switching_point
-        for i in range(1, Constants.NUM_QUESTIONS + 1):
-            is_sure = (i > sp)
-            setattr(player, f'q{i}', is_sure)
+        # 1〜22問から1つをランダム選択
+        selected_q = random.randint(1, Constants.NUM_QUESTIONS)
+        player.selected_question = selected_q
 
-        # 2. 謝礼金のランダム決定処理
-        q_num = random.randint(1, Constants.NUM_QUESTIONS)
-        player.selected_question = q_num
-        
-        sure_payoff = Constants.SURE_PAYOFFS[q_num - 1]
-        chosen_sure = getattr(player, f'q{q_num}')
-        
-        if chosen_sure:
-            player.payoff_choice = '確定額'
-            player.payoff = sure_payoff
-        else:
+        # 選択された問題の回答を取得
+        chosen_lottery = getattr(player, f'q{selected_q}')
+
+        if chosen_lottery:
             player.payoff_choice = 'くじ'
-            outcome = random.choice([Constants.LOTTERY_HIGH, Constants.LOTTERY_LOW])
-            player.lottery_outcome = outcome
-            player.payoff = outcome
+            # 50%の確率で当たりの判定
+            if random.random() < 0.5:
+                player.lottery_outcome = Constants.LOTTERY_HIGH
+                player.payoff = Constants.LOTTERY_HIGH
+            else:
+                player.lottery_outcome = Constants.LOTTERY_LOW
+                player.payoff = Constants.LOTTERY_LOW
+        else:
+            player.payoff_choice = '確実な金額'
+            player.payoff = Constants.SURE_PAYOFFS[selected_q - 1]
 
 
 class Results(Page):
-    pass
+    def vars_for_template(player: Player):
+        selected_sure = Constants.SURE_PAYOFFS[player.selected_question - 1]
+        return {
+            'selected_sure': selected_sure,
+        }
 
 
 page_sequence = [Decision, Results]
-
