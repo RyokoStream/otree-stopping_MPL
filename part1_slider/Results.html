@@ -1,0 +1,36 @@
+{{ block title }}実験結果{{ endblock }}
+
+{{ block content }}
+<div class="card mb-4 shadow-sm">
+    <div class="card-header bg-primary text-white">
+        <h4 class="mb-0">あなたの獲得謝礼金</h4>
+    </div>
+    <div class="card-body">
+        <p class="fs-5">
+            全22問の中から、抽選により <strong>第{{ player.selected_question }}問</strong> が謝礼決定の対象として選ばれました。
+        </p>
+
+        <div class="alert alert-light border p-3 my-3">
+            <p class="mb-2"><strong>【第{{ player.selected_question }}問でのあなたの選択】</strong></p>
+            <p class="fs-4 text-center text-dark">
+                <strong>{{ player.payoff_choice }}</strong>
+            </p>
+            
+            {% if player.payoff_choice == 'くじ' %}
+                <hr>
+                <p class="mb-0 text-center">
+                    くじの抽選結果: <strong>{{ player.lottery_outcome }} 円</strong>
+                </p>
+            {% endif %}
+        </div>
+
+        <h3 class="text-center text-success mt-4">
+            最終獲得額: <strong>{{ player.payoff }} 円</strong>
+        </h3>
+    </div>
+</div>
+
+<div class="text-end mt-4">
+    {{ next_button }}
+</div>
+{{ endblock }}
