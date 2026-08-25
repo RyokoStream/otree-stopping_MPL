@@ -15,7 +15,7 @@
             
             {% if lottery_drawn %}
                 <p>あなたの決定に基づき、<strong>「くじA」</strong> が実行されました。</p>
-                {% if lottery_win %}
+                {% if player.payoff > 0 %}
                     <p class="text-success">➔ 抽選の結果、<strong>{{ payoff_amount }} 円</strong> が当選しました！</p>
                 {% else %}
                     <p class="text-danger">➔ 抽選の結果、<strong>0 円</strong> でした。</p>
