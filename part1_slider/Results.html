@@ -1,36 +1,44 @@
-{{ block title }}実験結果{{ endblock }}
+{{ block title }}
+    実験結果
+{{ endblock }}
 
 {{ block content }}
-<div class="card mb-4 shadow-sm">
-    <div class="card-header bg-primary text-white">
-        <h4 class="mb-0">あなたの獲得謝礼金</h4>
-    </div>
-    <div class="card-body">
-        <p class="fs-5">
-            全22問の中から、抽選により <strong>第{{ player.selected_question }}問</strong> が謝礼決定の対象として選ばれました。
-        </p>
 
-        <div class="alert alert-light border p-3 my-3">
-            <p class="mb-2"><strong>【第{{ player.selected_question }}問でのあなたの選択】</strong></p>
-            <p class="fs-4 text-center text-dark">
-                <strong>{{ player.payoff_choice }}</strong>
-            </p>
-            
-            {% if player.payoff_choice == 'くじ' %}
-                <hr>
-                <p class="mb-0 text-center">
-                    くじの抽選結果: <strong>{{ player.lottery_outcome }} 円</strong>
-                </p>
-            {% endif %}
+    <div class="card mb-4">
+        <div class="card-header bg-primary text-white">
+            <h4 class="mb-0">あなたの獲得謝礼金</h4>
         </div>
+        <div class="card-body">
+            <p class="fs-5">
+                全{{ Constants.NUM_QUESTIONS }}問の中から、抽選により 
+                <strong class="text-danger">第 {{ player.selected_question }} 問</strong> 
+                が謝礼決定の対象として選ばれました。
+            </p>
 
-        <h3 class="text-center text-success mt-4">
-            最終獲得額: <strong>{{ player.payoff }} 円</strong>
-        </h3>
+            <hr>
+
+            <p class="mb-2"><strong>【第 {{ player.selected_question }} 問でのあなたの選択】</strong></p>
+            <p class="fs-5 fw-bold text-primary">
+                {{ player.payoff_choice }}
+            </p>
+
+            {{ if player.payoff_choice == 'くじ' }}
+                <p class="mb-1">くじの抽選結果： <strong>{{ player.lottery_outcome }} 円</strong></p>
+            {{ else }}
+                <p class="mb-1">提示されていた確実な金額： <strong>{{ selected_sure }} 円</strong></p>
+            {{ endif }}
+
+            <hr>
+
+            <div class="alert alert-success text-center mt-4 mb-0" role="alert">
+                <h3 class="alert-heading mb-1">最終獲得額</h3>
+                <span class="display-5 fw-bold">{{ player.payoff }}</span> <span class="fs-4">円</span>
+            </div>
+        </div>
     </div>
-</div>
 
-<div class="text-end mt-4">
-    {{ next_button }}
-</div>
+    <div class="text-end">
+        {{ next_button }}
+    </div>
+
 {{ endblock }}
